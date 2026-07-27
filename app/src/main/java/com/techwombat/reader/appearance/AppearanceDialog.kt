@@ -1,0 +1,55 @@
+package com.techwombat.reader.appearance
+
+import android.app.AlertDialog
+import android.content.Context
+import android.view.Gravity
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.Spinner
+import android.widget.Switch
+import android.widget.TextView
+import com.techwombat.reader.storage.ReaderAppearance
+import com.techwombat.reader.storage.ReaderTheme
+
+class AppearanceDialog(private val context: Context, initial: ReaderAppearance, private val changed: (ReaderAppearance) -> Unit) {
+    private var appearance = initial.normalized()
+
+    fun show() {
+        val padding = (20 * context.resources.displayMetrics.density).toInt()
+        val content = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; setPadding(padding, padding / 2, padding, 0) }
+        content.addView(stepper("Font size", { appearance.fontScale }, { appearance = appearance.copy(fontScale = it); notifyChange() }, ReaderAppearance.MIN_FONT_SCALE, ReaderAppearance.MAX_FONT_SCALE))
+        content.addView(TextView(context).apply { text = "Font" })
+        content.addView(Spinner(context).apply {
+            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, ReaderAppearanceMapper.fontChoices.map { it.second })
+            setSelection(ReaderAppearanceMapper.fontChoices.indexOfFirst { it.first == appearance.fontFamily }.coerceAtLeast(0))
+            contentDescription = "Font family"
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) { appearance = appearance.copy(fontFamily = ReaderAppearanceMapper.fontChoices[position].first); notifyChange() }
+                override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+            }
+        })
+        content.addView(stepper("Line spacing", { appearance.lineSpacing }, { appearance = appearance.copy(lineSpacing = it); notifyChange() }, ReaderAppearance.MIN_LINE_SPACING, ReaderAppearance.MAX_LINE_SPACING))
+        content.addView(Switch(context).apply {
+            text = "Dark mode"; isChecked = appearance.theme == ReaderTheme.DARK; contentDescription = "Dark mode"
+            setOnCheckedChangeListener { _, checked -> appearance = appearance.copy(theme = if (checked) ReaderTheme.DARK else ReaderTheme.LIGHT); notifyChange() }
+        })
+        AlertDialog.Builder(context).setTitle("Reading appearance").setView(content).setPositiveButton("Done", null).show()
+    }
+
+    private fun stepper(label: String, value: () -> Float, set: (Float) -> Unit, min: Float, max: Float): LinearLayout {
+        val valueView = TextView(context).apply { text = format(value()); gravity = Gravity.CENTER; minWidth = 80 }
+        return LinearLayout(context).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(TextView(context).apply { text = label; layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f) })
+            addView(Button(context).apply { text = "−"; contentDescription = "Decrease $label"; setOnClickListener { set((value() - 0.1f).coerceAtLeast(min)); valueView.text = format(value()) } })
+            addView(valueView)
+            addView(Button(context).apply { text = "+"; contentDescription = "Increase $label"; setOnClickListener { set((value() + 0.1f).coerceAtMost(max)); valueView.text = format(value()) } })
+        }
+    }
+
+    private fun notifyChange() = changed(appearance.normalized())
+    private fun format(value: Float) = "%.1f×".format(value)
+}

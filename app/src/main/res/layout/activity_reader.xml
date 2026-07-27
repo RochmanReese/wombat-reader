@@ -50,6 +50,13 @@
                 android:textSize="14sp" />
 
             <Button
+                android:id="@+id/readerAppearanceButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Reading appearance settings"
+                android:text="Aa" />
+
+            <Button
                 android:id="@+id/closeReaderButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
