@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Wombat Reader</string>
+    <string name="reader_progress_percent">%1$d%% through book</string>
+</resources>

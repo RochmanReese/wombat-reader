@@ -2,11 +2,17 @@
 
 Add each session summary immediately below this heading so the newest entry remains first.
 
+## 2026-07-27 — Progress slider ready for device acceptance
+
+- Added a labelled 0–100% progress slider to the revealed reader controls.
+- The slider follows Readium’s overall book progression, pauses updates while dragged, and uses Readium’s progression locator to jump when released.
+- Added unit tests for 0%, 50%, 100%, and out-of-range conversion. Debug build, unit tests, and Android test APK build pass.
+
 ## 2026-07-27 — Centre-tap reader controls
 
 - Added a centre-screen tap gesture that reveals or hides the reader controls; controls automatically hide after four seconds when revealed.
 - Left/right swipe navigation remains handled by Readium and is unaffected.
-- Debug build, unit tests, and Android test APK build pass. Manual phone verification is pending.
+- Debug build, unit tests, and Android test APK build pass. Manual phone verification passed.
 
 ## 2026-07-27 — Private EPUB library import
 

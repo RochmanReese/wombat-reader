@@ -7,9 +7,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.techwombat.reader.controls.ProgressionSlider
 import com.techwombat.reader.databinding.ActivityReaderBinding
 import com.techwombat.reader.storage.BookReadingState
 import com.techwombat.reader.storage.LibraryStorage
@@ -31,6 +33,7 @@ import org.readium.r2.navigator.input.KeyEvent
 import org.readium.r2.navigator.input.TapEvent
 import org.readium.r2.shared.publication.Locator
 import org.readium.r2.shared.publication.Publication
+import org.readium.r2.shared.publication.services.locateProgression
 import org.readium.r2.shared.util.asset.AssetRetriever
 import org.readium.r2.shared.util.http.DefaultHttpClient
 import org.readium.r2.streamer.PublicationOpener
@@ -44,13 +47,16 @@ class ReaderActivity : AppCompatActivity() {
     private val hideControlsRunnable = Runnable { hideControls() }
     private var activeBookId: String? = null
     private var activeNavigator: EpubNavigatorFragment? = null
+    private var activePublication: Publication? = null
     private var controlsVisible = true
+    private var userIsDraggingProgress = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReaderBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.closeReaderButton.setOnClickListener { finish() }
+        configureProgressSlider()
 
         val uri = intent.getStringExtra(EXTRA_EPUB_URI)?.let(Uri::parse)
         if (uri == null) {
@@ -69,6 +75,25 @@ class ReaderActivity : AppCompatActivity() {
     override fun onDestroy() {
         readerDatabase.close()
         super.onDestroy()
+    }
+
+    private fun configureProgressSlider() {
+        binding.readerProgressSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                if (fromUser) updateProgressLabel(progress)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                userIsDraggingProgress = true
+                showControls(autoHide = false)
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                userIsDraggingProgress = false
+                navigateToProgression(ProgressionSlider.toProgression(seekBar.progress))
+                showControls(autoHide = true)
+            }
+        })
     }
 
     private fun openEpub(uri: Uri) {
@@ -134,10 +159,14 @@ class ReaderActivity : AppCompatActivity() {
             .commit()
         activeBookId = openedBook.importedBook.bookId
         activeNavigator = navigator
+        activePublication = openedBook.publication
         lifecycleScope.launch {
             navigator.currentLocator
                 .debounce(750L)
-                .collect { locator -> persistLocation(openedBook.importedBook.bookId, locator) }
+                .collect { locator ->
+                    updateProgressSlider(locator)
+                    persistLocation(openedBook.importedBook.bookId, locator)
+                }
         }
         if (openedBook.importedBook.wasAdded) {
             Toast.makeText(this, "Added to library", Toast.LENGTH_SHORT).show()
@@ -163,6 +192,24 @@ class ReaderActivity : AppCompatActivity() {
         override fun onKey(event: KeyEvent): Boolean = false
     }
 
+    private fun updateProgressSlider(locator: Locator) {
+        if (userIsDraggingProgress) return
+        val sliderProgress = ProgressionSlider.toSliderProgress(locator.locations.totalProgression)
+        binding.readerProgressSlider.progress = sliderProgress
+        updateProgressLabel(sliderProgress)
+    }
+
+    private fun updateProgressLabel(sliderProgress: Int) {
+        binding.readerProgressLabel.text = getString(R.string.reader_progress_percent, sliderProgress)
+    }
+
+    private fun navigateToProgression(progression: Double) {
+        lifecycleScope.launch {
+            val locator = activePublication?.locateProgression(progression) ?: return@launch
+            activeNavigator?.go(locator)
+        }
+    }
+
     private fun toggleControls() {
         if (controlsVisible) hideControls() else showControls(autoHide = true)
     }
@@ -175,14 +222,14 @@ class ReaderActivity : AppCompatActivity() {
             binding.readerControlsBar.animate().alpha(1f).setDuration(CONTROLS_ANIMATION_MILLIS).start()
             controlsVisible = true
         }
-        if (autoHide) {
+        if (autoHide && !userIsDraggingProgress) {
             controlsHandler.postDelayed(hideControlsRunnable, CONTROLS_AUTO_HIDE_MILLIS)
         }
     }
 
     private fun hideControls(immediate: Boolean = false) {
         controlsHandler.removeCallbacks(hideControlsRunnable)
-        if (!controlsVisible) return
+        if (!controlsVisible || userIsDraggingProgress) return
         if (immediate) {
             binding.readerControlsBar.visibility = View.GONE
             binding.readerControlsBar.alpha = 1f

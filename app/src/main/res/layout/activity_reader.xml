@@ -16,27 +16,53 @@
     <LinearLayout
         android:id="@+id/readerControlsBar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:background="#FFFDF8"
         android:elevation="8dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingStart="12dp"
-        android:paddingEnd="12dp">
+        android:paddingTop="6dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp">
 
-        <TextView
-            android:id="@+id/readerStatus"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Preparing reader…"
-            android:textSize="14sp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/closeReaderButton"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/readerProgressLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:contentDescription="Reading progress"
+                android:text="0% through book"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/readerStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="Preparing reader…"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/closeReaderButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Return to the library"
+                android:text="Back" />
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/readerProgressSlider"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="Return to the library"
-            android:text="Back" />
+            android:contentDescription="Reading progress. Drag to move through the book."
+            android:max="100"
+            android:progress="0" />
     </LinearLayout>
 </LinearLayout>

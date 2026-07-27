@@ -90,7 +90,7 @@ No EPUB text or reading data is sent to a server.
 - Manual test: open a book, move to a later chapter, close/force-stop/reopen, and confirm the same page is restored.
 - Manual test: alternate between two books and confirm each restores independently.
 
-### [ ] 3. Add centre-tap control visibility
+### [x] 3. Add centre-tap control visibility
 
 **Work**
 
@@ -112,7 +112,7 @@ No EPUB text or reading data is sent to a server.
 - Instrumented gesture test: centre tap toggles visible state.
 - Instrumented gesture test: edge tap and swipe do not trigger the toggle.
 - Instrumented timing test: controls auto-hide after the configured timeout.
-- Manual test: read through multiple pages, including image pages, and verify swipe navigation is unchanged.
+- Manual test: read through multiple pages, including image pages, and verify swipe navigation is unchanged. **Passed on device.**
 - Accessibility test: TalkBack can focus and activate every revealed control.
 
 ### [ ] 4. Implement the progress slider
@@ -134,7 +134,7 @@ No EPUB text or reading data is sent to a server.
 
 **Tests**
 
-- Unit test: progression-to-slider and slider-to-nearest-position mapping at 0%, 50%, and 100%.
+- Unit test: progression-to-slider and slider-to-nearest-position mapping at 0%, 50%, and 100%. **Passed.**
 - Instrumented test: changing the current locator updates the displayed slider value.
 - Instrumented test: releasing the slider invokes navigator navigation with the selected locator.
 - Manual test: drag to several points in a long book and verify the destination is sensible.
