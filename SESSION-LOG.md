@@ -2,6 +2,12 @@
 
 Add each session summary immediately below this heading so the newest entry remains first.
 
+## 2026-07-27 — White reader top inset
+
+- Inspected an on-device screenshot and confirmed the dark strip was the Android status bar, with EPUB content beginning immediately below it.
+- Added a 32dp white host inset above the navigator, so the first content line has visible breathing room without a grey band.
+- `./gradlew :app:assembleDebug :app:testDebugUnitTest` succeeds; on-device confirmation is pending.
+
 ## 2026-07-27 — Readium internal page margins
 
 - Replaced the artificial outer top margin with Readium's `EpubPreferences(pageMargins = 1.5)` at navigator creation.
@@ -24,7 +30,7 @@ Add each session summary immediately below this heading so the newest entry rema
 ## 2026-07-27 — Readium EPUB compatibility spike
 
 - Replaced the reader scaffold with a working Readium parser and EPUB navigator in `ReaderActivity`.
-- Added the Readium Kotlin 3.1.2 dependencies, AndroidX, and required core-library desugaring; `./gradlew :app:assembleDebug` succeeds.
+- Added the required Readium-compatible Kotlin and core-library desugaring configuration; `./gradlew :app:assembleDebug` succeeds.
 - Validated the supplied local `swordofk.epub`: its EPUB archive passes integrity checks and contains four image assets (a cover plus three illustrations).
 - Added `*.epub` to `.gitignore`; the supplied book remains local and untracked.
 - `./gradlew :app:testDebugUnitTest` succeeds, though it currently has no unit-test source files. The remaining Step 2 acceptance is an on-device smoke test: open this EPUB, confirm its text and images render, and confirm an invalid file displays a clear error.
