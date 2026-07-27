@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.readium.r2.navigator.epub.EpubNavigatorFactory
 import org.readium.r2.navigator.epub.EpubNavigatorFragment
+import org.readium.r2.navigator.epub.EpubPreferences
 import org.readium.r2.shared.publication.Publication
 import org.readium.r2.shared.util.asset.AssetRetriever
 import org.readium.r2.shared.util.http.DefaultHttpClient
@@ -66,7 +67,10 @@ class ReaderActivity : AppCompatActivity() {
 
     private fun showPublication(publication: Publication) {
         val navigatorFactory = EpubNavigatorFactory(publication)
-        supportFragmentManager.fragmentFactory = navigatorFactory.createFragmentFactory(initialLocator = null)
+        supportFragmentManager.fragmentFactory = navigatorFactory.createFragmentFactory(
+            initialLocator = null,
+            initialPreferences = EpubPreferences(pageMargins = 1.5),
+        )
         val navigator = supportFragmentManager.fragmentFactory.instantiate(
             classLoader,
             EpubNavigatorFragment::class.java.name,
