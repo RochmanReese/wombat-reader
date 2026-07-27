@@ -53,14 +53,18 @@ class ReaderActivity : AppCompatActivity() {
                         ?: error("Readium could not open this EPUB.")
                 }
             }
-            result.onSuccess(::showPublication).onFailure { error ->
+            result.onSuccess { publication ->
+                runCatching { showPublication(publication) }
+                    .onFailure { error ->
+                        showError("This EPUB could not be displayed: ${error.message ?: "unknown reader error"}")
+                    }
+            }.onFailure { error ->
                 showError(error.message ?: "Could not open this EPUB.")
             }
         }
     }
 
     private fun showPublication(publication: Publication) {
-        binding.readerStatus.visibility = android.view.View.GONE
         val navigatorFactory = EpubNavigatorFactory(publication)
         supportFragmentManager.fragmentFactory = navigatorFactory.createFragmentFactory(initialLocator = null)
         val navigator = supportFragmentManager.fragmentFactory.instantiate(
@@ -70,6 +74,7 @@ class ReaderActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.readerContainer, navigator, NAVIGATOR_TAG)
             .commit()
+        binding.readerStatus.visibility = android.view.View.GONE
     }
 
     private fun showError(message: String) {

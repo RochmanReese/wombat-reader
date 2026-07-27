@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
 
     <FrameLayout
         android:id="@+id/readerContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
     <LinearLayout
+        android:id="@+id/readerControlsBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="#CCFFFFFF"
+        android:layout_height="72dp"
+        android:background="#FFFDF8"
+        android:elevation="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
 
         <TextView
             android:id="@+id/readerStatus"
@@ -29,6 +36,7 @@
             android:id="@+id/closeReaderButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="Return to the library"
             android:text="Back" />
     </LinearLayout>
-</FrameLayout>
+</LinearLayout>

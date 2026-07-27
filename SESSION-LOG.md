@@ -2,6 +2,13 @@
 
 Add each session summary immediately below this heading so the newest entry remains first.
 
+## 2026-07-27 — Reader footer and invalid-EPUB handling
+
+- Changed the reader screen so the EPUB navigator occupies only the space above a fixed 72dp bottom controls bar; reader text no longer runs beneath the footer.
+- Kept Back in the reserved bar and established it as the location for future table of contents, typography, theme, and page-navigation controls.
+- Added defensive handling around Readium navigator setup so immediate display failures surface as a readable in-app error rather than closing the activity.
+- `./gradlew :app:assembleDebug :app:testDebugUnitTest` succeeds. An on-device test remains needed for the footer spacing and invalid-EPUB error state.
+
 ## 2026-07-27 — Readium EPUB compatibility spike
 
 - Replaced the reader scaffold with a working Readium parser and EPUB navigator in `ReaderActivity`.
