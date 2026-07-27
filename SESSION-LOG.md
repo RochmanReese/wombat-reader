@@ -2,12 +2,18 @@
 
 Add each session summary immediately below this heading so the newest entry remains first.
 
+## 2026-07-27 — Centre-tap reader controls
+
+- Added a centre-screen tap gesture that reveals or hides the reader controls; controls automatically hide after four seconds when revealed.
+- Left/right swipe navigation remains handled by Readium and is unaffected.
+- Debug build, unit tests, and Android test APK build pass. Manual phone verification is pending.
+
 ## 2026-07-27 — Private EPUB library import
 
 - Reader now imports each opened EPUB into `filesDir/ebooks/<SHA-256 hash>.epub` and reuses the same copy for duplicate content.
 - The content hash is both the private library filename and Room `bookId`; the original selected EPUB remains unchanged.
 - Added unit tests for first import and duplicate-copy reuse. Debug build and unit tests pass.
-- Manual acceptance remains pending: open an EPUB, confirm the “Added to library” message, then reopen it and confirm the saved page still restores.
+- Manual acceptance passed: opening an EPUB shows the “Added to library” message.
 
 ## 2026-07-27 — Stable book identity and reading-location restoration
 

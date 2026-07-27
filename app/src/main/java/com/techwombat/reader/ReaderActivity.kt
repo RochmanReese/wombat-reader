@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -22,6 +25,10 @@ import kotlinx.coroutines.withContext
 import org.readium.r2.navigator.epub.EpubNavigatorFactory
 import org.readium.r2.navigator.epub.EpubNavigatorFragment
 import org.readium.r2.navigator.epub.EpubPreferences
+import org.readium.r2.navigator.input.DragEvent
+import org.readium.r2.navigator.input.InputListener
+import org.readium.r2.navigator.input.KeyEvent
+import org.readium.r2.navigator.input.TapEvent
 import org.readium.r2.shared.publication.Locator
 import org.readium.r2.shared.publication.Publication
 import org.readium.r2.shared.util.asset.AssetRetriever
@@ -33,8 +40,11 @@ import org.readium.r2.streamer.parser.epub.EpubParser
 class ReaderActivity : AppCompatActivity() {
     private lateinit var binding: ActivityReaderBinding
     private val readerDatabase by lazy { ReaderDatabase.create(this) }
+    private val controlsHandler = Handler(Looper.getMainLooper())
+    private val hideControlsRunnable = Runnable { hideControls() }
     private var activeBookId: String? = null
     private var activeNavigator: EpubNavigatorFragment? = null
+    private var controlsVisible = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +61,7 @@ class ReaderActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
+        controlsHandler.removeCallbacks(hideControlsRunnable)
         persistCurrentLocation()
         super.onPause()
     }
@@ -61,6 +72,7 @@ class ReaderActivity : AppCompatActivity() {
     }
 
     private fun openEpub(uri: Uri) {
+        showControls(autoHide = false)
         binding.readerStatus.text = "Adding EPUB to library…"
         lifecycleScope.launch {
             val result = runCatching {
@@ -116,6 +128,7 @@ class ReaderActivity : AppCompatActivity() {
             classLoader,
             EpubNavigatorFragment::class.java.name,
         ) as EpubNavigatorFragment
+        navigator.addInputListener(controlsInputListener(navigator))
         supportFragmentManager.beginTransaction()
             .replace(R.id.readerContainer, navigator, NAVIGATOR_TAG)
             .commit()
@@ -129,7 +142,61 @@ class ReaderActivity : AppCompatActivity() {
         if (openedBook.importedBook.wasAdded) {
             Toast.makeText(this, "Added to library", Toast.LENGTH_SHORT).show()
         }
-        binding.readerStatus.visibility = android.view.View.GONE
+        binding.readerStatus.visibility = View.GONE
+        hideControls(immediate = true)
+    }
+
+    private fun controlsInputListener(navigator: EpubNavigatorFragment): InputListener = object : InputListener {
+        override fun onTap(event: TapEvent): Boolean {
+            val readerView = navigator.publicationView
+            if (readerView.width == 0 || readerView.height == 0) return false
+            val isCentreTap = event.point.x in readerView.width * CENTRE_REGION_START..readerView.width * CENTRE_REGION_END &&
+                event.point.y in readerView.height * CENTRE_REGION_START..readerView.height * CENTRE_REGION_END
+            if (!isCentreTap) return false
+
+            runOnUiThread { toggleControls() }
+            return true
+        }
+
+        override fun onDrag(event: DragEvent): Boolean = false
+
+        override fun onKey(event: KeyEvent): Boolean = false
+    }
+
+    private fun toggleControls() {
+        if (controlsVisible) hideControls() else showControls(autoHide = true)
+    }
+
+    private fun showControls(autoHide: Boolean) {
+        controlsHandler.removeCallbacks(hideControlsRunnable)
+        if (!controlsVisible) {
+            binding.readerControlsBar.alpha = 0f
+            binding.readerControlsBar.visibility = View.VISIBLE
+            binding.readerControlsBar.animate().alpha(1f).setDuration(CONTROLS_ANIMATION_MILLIS).start()
+            controlsVisible = true
+        }
+        if (autoHide) {
+            controlsHandler.postDelayed(hideControlsRunnable, CONTROLS_AUTO_HIDE_MILLIS)
+        }
+    }
+
+    private fun hideControls(immediate: Boolean = false) {
+        controlsHandler.removeCallbacks(hideControlsRunnable)
+        if (!controlsVisible) return
+        if (immediate) {
+            binding.readerControlsBar.visibility = View.GONE
+            binding.readerControlsBar.alpha = 1f
+        } else {
+            binding.readerControlsBar.animate()
+                .alpha(0f)
+                .setDuration(CONTROLS_ANIMATION_MILLIS)
+                .withEndAction {
+                    binding.readerControlsBar.visibility = View.GONE
+                    binding.readerControlsBar.alpha = 1f
+                }
+                .start()
+        }
+        controlsVisible = false
     }
 
     private fun persistCurrentLocation() {
@@ -157,8 +224,9 @@ class ReaderActivity : AppCompatActivity() {
     }
 
     private fun showError(message: String) {
+        showControls(autoHide = false)
         binding.readerStatus.text = message
-        binding.readerStatus.visibility = android.view.View.VISIBLE
+        binding.readerStatus.visibility = View.VISIBLE
     }
 
     private data class OpenedBook(
@@ -171,6 +239,10 @@ class ReaderActivity : AppCompatActivity() {
         private const val EXTRA_EPUB_URI = "epub_uri"
         private const val NAVIGATOR_TAG = "epub-navigator"
         private const val EPUB_LIBRARY_DIRECTORY = "ebooks"
+        private const val CENTRE_REGION_START = 0.25f
+        private const val CENTRE_REGION_END = 0.75f
+        private const val CONTROLS_AUTO_HIDE_MILLIS = 4_000L
+        private const val CONTROLS_ANIMATION_MILLIS = 180L
 
         fun intent(context: Context, uri: Uri): Intent = Intent(context, ReaderActivity::class.java)
             .putExtra(EXTRA_EPUB_URI, uri.toString())
