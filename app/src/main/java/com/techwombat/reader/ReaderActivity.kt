@@ -141,6 +141,8 @@ class ReaderActivity : AppCompatActivity() {
         binding.root.setBackgroundColor(if (dark) Color.BLACK else Color.WHITE)
         binding.readerControlsBar.setBackgroundColor(if (dark) Color.rgb(30, 30, 30) else Color.rgb(255, 253, 248))
         binding.readerProgressLabel.setTextColor(if (dark) Color.WHITE else Color.DKGRAY)
+        binding.readerAppearanceButton.setColorFilter(if (dark) Color.WHITE else Color.rgb(51, 51, 51))
+        binding.closeReaderButton.setColorFilter(if (dark) Color.WHITE else Color.rgb(51, 51, 51))
     }
 
     private fun updateProgressSlider(locator: Locator) { if (!userIsDraggingProgress) { val progress = ProgressionSlider.toSliderProgress(locator.locations.totalProgression); binding.readerProgressSlider.progress = progress; updateProgressLabel(progress) } }
