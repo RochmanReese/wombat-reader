@@ -2,12 +2,20 @@
 
 Add each session summary immediately below this heading so the newest entry remains first.
 
+## 2026-07-27 — Stable book identity and reading-location restoration
+
+- Added SHA-256 content-based EPUB identities, so the same EPUB maps to the same Room record when reopened.
+- Persisted Readium `Locator` JSON and total progression while reading, with debounced updates plus a final save when the reader pauses.
+- Reader startup now restores a saved locator as Readium’s `initialLocator`.
+- Added unit coverage for stable/different content IDs. Debug app, unit tests, and Android test APK all build successfully.
+- Manual acceptance remains pending: reopen the same EPUB after moving to a later page and verify the precise location restores.
+
 ## 2026-07-27 — Reader persistence foundation
 
 - Added DataStore for global reading appearance: font scale, font family, line spacing, and light/dark theme.
 - Added Room (SQLite) version-1 schema for per-book source, title, saved locator, progression, and last-opened time.
 - Added model unit tests plus instrumented tests for real DataStore persistence and Room book-location isolation.
-- Debug build, unit tests, and Android test APK compilation succeed. `connectedDebugAndroidTest` remains the on-device success check before marking Step 1 complete.
+- `connectedDebugAndroidTest` passed on a physical Android 15 device, completing the persistence-foundation success check.
 - Added `reader-controls-brief.md` with the planned centre-tap controls, progress slider, appearance panel, and location restoration stages.
 
 ## 2026-07-27 — White reader top inset
