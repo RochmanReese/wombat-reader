@@ -2,13 +2,20 @@
 
 Add each session summary immediately below this heading so the newest entry remains first.
 
+## 2026-07-27 — Private EPUB library import
+
+- Reader now imports each opened EPUB into `filesDir/ebooks/<SHA-256 hash>.epub` and reuses the same copy for duplicate content.
+- The content hash is both the private library filename and Room `bookId`; the original selected EPUB remains unchanged.
+- Added unit tests for first import and duplicate-copy reuse. Debug build and unit tests pass.
+- Manual acceptance remains pending: open an EPUB, confirm the “Added to library” message, then reopen it and confirm the saved page still restores.
+
 ## 2026-07-27 — Stable book identity and reading-location restoration
 
 - Added SHA-256 content-based EPUB identities, so the same EPUB maps to the same Room record when reopened.
 - Persisted Readium `Locator` JSON and total progression while reading, with debounced updates plus a final save when the reader pauses.
 - Reader startup now restores a saved locator as Readium’s `initialLocator`.
 - Added unit coverage for stable/different content IDs. Debug app, unit tests, and Android test APK all build successfully.
-- Manual acceptance remains pending: reopen the same EPUB after moving to a later page and verify the precise location restores.
+- Manual acceptance passed: reopening the same EPUB returns to the saved page.
 
 ## 2026-07-27 — Reader persistence foundation
 

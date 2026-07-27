@@ -45,7 +45,7 @@ No EPUB text or reading data is sent to a server.
 
 ## Implementation and verification checklist
 
-### [ ] 1. Add persistent reader data foundations
+### [x] 1. Add persistent reader data foundations
 
 **Work**
 
@@ -67,7 +67,7 @@ No EPUB text or reading data is sent to a server.
 - Migration test from schema version 1 to the current schema.
 - Manual test: force-stop and reopen the app; stored values remain.
 
-### [ ] 2. Establish stable book identity and restore location
+### [x] 2. Establish stable book identity and restore location
 
 **Work**
 
