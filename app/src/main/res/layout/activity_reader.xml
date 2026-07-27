@@ -49,19 +49,25 @@
                 android:text="Preparing reader…"
                 android:textSize="14sp" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/readerAppearanceButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Reading appearance settings"
-                android:text="Aa" />
+                android:padding="12dp"
+                android:src="@drawable/ic_settings"
+                android:tint="#333333" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/closeReaderButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="Return to the library"
-                android:text="Back" />
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Return to library"
+                android:padding="12dp"
+                android:src="@drawable/ic_library_shelf"
+                android:tint="#333333" />
         </LinearLayout>
 
         <SeekBar
