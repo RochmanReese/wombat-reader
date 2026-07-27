@@ -29,11 +29,22 @@ class LibraryAdapter(
             binding.root.contentDescription = "${binding.bookTitle.text}, ${binding.bookAuthor.text}. Tap to open. Hold for two seconds to delete."
             binding.root.setOnTouchListener(object : View.OnTouchListener {
                 private var held = false
-                private val deleteRunnable = Runnable { held = true; onDeleteRequested(book) }
+                private var startX = 0f
+                private var startY = 0f
+                private val touchSlop = ViewConfiguration.get(binding.root.context).scaledTouchSlop
+                private val deleteRunnable = Runnable { held = true; binding.root.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS); onDeleteRequested(book) }
                 override fun onTouch(view: View, event: MotionEvent): Boolean = when (event.actionMasked) {
-                    MotionEvent.ACTION_DOWN -> { held = false; handler.postDelayed(deleteRunnable, DELETE_HOLD_MILLIS); true }
+                    MotionEvent.ACTION_DOWN -> {
+                        held = false; startX = event.x; startY = event.y
+                        handler.postDelayed(deleteRunnable, DELETE_HOLD_MILLIS)
+                        true
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        if (kotlin.math.abs(event.x - startX) > touchSlop || kotlin.math.abs(event.y - startY) > touchSlop) handler.removeCallbacks(deleteRunnable)
+                        true
+                    }
                     MotionEvent.ACTION_UP -> { handler.removeCallbacks(deleteRunnable); if (!held) onOpen(book); true }
-                    MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_MOVE -> { handler.removeCallbacks(deleteRunnable); true }
+                    MotionEvent.ACTION_CANCEL -> { handler.removeCallbacks(deleteRunnable); true }
                     else -> true
                 }
             })
