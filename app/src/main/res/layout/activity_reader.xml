@@ -9,20 +9,19 @@
         android:id="@+id/readerContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="28dp"
         android:layout_weight="1" />
 
     <LinearLayout
         android:id="@+id/readerControlsBar"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:layout_height="56dp"
         android:background="#FFFDF8"
         android:elevation="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp">
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
 
         <TextView
             android:id="@+id/readerStatus"

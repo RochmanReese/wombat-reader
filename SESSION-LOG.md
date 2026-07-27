@@ -2,6 +2,12 @@
 
 Add each session summary immediately below this heading so the newest entry remains first.
 
+## 2026-07-27 — Refined reader spacing
+
+- Reduced the reader controls bar from 72dp to 56dp after on-device feedback.
+- Added a 28dp top margin above the EPUB navigator so the first text lines have breathing room.
+- `./gradlew :app:assembleDebug :app:testDebugUnitTest` succeeds; device confirmation of the adjusted spacing is pending.
+
 ## 2026-07-27 — Reader footer and invalid-EPUB handling
 
 - Changed the reader screen so the EPUB navigator occupies only the space above a fixed 72dp bottom controls bar; reader text no longer runs beneath the footer.
