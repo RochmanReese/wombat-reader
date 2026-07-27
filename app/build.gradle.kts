@@ -32,6 +32,7 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("org.readium.kotlin-toolkit:readium-shared:3.1.2")
     implementation("org.readium.kotlin-toolkit:readium-streamer:3.1.2")
     implementation("org.readium.kotlin-toolkit:readium-navigator:3.1.2")

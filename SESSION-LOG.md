@@ -1,0 +1,19 @@
+# Session log
+
+Add each session summary immediately below this heading so the newest entry remains first.
+
+## 2026-07-27 — Readium EPUB compatibility spike
+
+- Replaced the reader scaffold with a working Readium parser and EPUB navigator in `ReaderActivity`.
+- Added the required Readium-compatible Kotlin and core-library desugaring configuration; `./gradlew :app:assembleDebug` succeeds.
+- Validated the supplied local `swordofk.epub`: its EPUB archive passes integrity checks and contains four image assets (a cover plus three illustrations).
+- Added `*.epub` to `.gitignore`; the supplied book remains local and untracked.
+- `./gradlew :app:testDebugUnitTest` succeeds, though it currently has no unit-test source files. The remaining Step 2 acceptance is an on-device smoke test: open this EPUB, confirm its text and images render, and confirm an invalid file displays a clear error.
+
+## 2026-07-27 — Project initialization and reader direction
+
+- Created the standalone `wombat-reader` Android project and published its initial GitHub repository.
+- Added the Readium Kotlin 3.1.2 dependencies, AndroidX, and required core-library desugaring; the standalone debug build succeeds.
+- Added an EPUB document-picker entry point and a `ReaderActivity` scaffold. Readium EPUB parsing/rendering is not implemented yet; this is the remaining work in reader-plan step 2.
+- Moved the staged implementation plan into `ebookreader.md` and completed its scope/design step: offline paginated EPUB reading, table of contents, font/theme controls, and saved reading location are the first-release target.
+- Wombat Liberates remains a separate project and its build/tests were verified after moving reader work out.
