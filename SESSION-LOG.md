@@ -2,6 +2,12 @@
 
 Add each session summary immediately below this heading so the newest entry remains first.
 
+## 2026-07-27 — Reader activity restoration
+
+- Reader now saves the active EPUB URI in Android activity state before being backgrounded or recreated.
+- On restoration, the app safely replaces Readium’s stale fragment shell, reopens the private library copy, and restores the saved locator.
+- Debug build, unit tests, and Android test APK build pass. Manual minimise/switch-app acceptance is pending.
+
 ## 2026-07-27 — Progress slider ready for device acceptance
 
 - Added a labelled 0–100% progress slider to the revealed reader controls.

@@ -45,6 +45,7 @@ class ReaderActivity : AppCompatActivity() {
     private val readerDatabase by lazy { ReaderDatabase.create(this) }
     private val controlsHandler = Handler(Looper.getMainLooper())
     private val hideControlsRunnable = Runnable { hideControls() }
+    private var activeEpubUri: Uri? = null
     private var activeBookId: String? = null
     private var activeNavigator: EpubNavigatorFragment? = null
     private var activePublication: Publication? = null
@@ -52,18 +53,31 @@ class ReaderActivity : AppCompatActivity() {
     private var userIsDraggingProgress = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Readium fragments need a factory even when Android is restoring an old activity.
+        // The old fragment is removed below and rebuilt from the private EPUB copy instead.
+        if (savedInstanceState != null) {
+            supportFragmentManager.fragmentFactory = EpubNavigatorFragment.createDummyFactory()
+        }
         super.onCreate(savedInstanceState)
         binding = ActivityReaderBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.closeReaderButton.setOnClickListener { finish() }
         configureProgressSlider()
 
-        val uri = intent.getStringExtra(EXTRA_EPUB_URI)?.let(Uri::parse)
+        val uri = savedInstanceState?.getString(STATE_EPUB_URI)?.let(Uri::parse)
+            ?: intent.getStringExtra(EXTRA_EPUB_URI)?.let(Uri::parse)
         if (uri == null) {
             showError("No EPUB was selected.")
-        } else if (savedInstanceState == null) {
-            openEpub(uri)
+            return
         }
+        activeEpubUri = uri
+        if (savedInstanceState != null) removeRestoredNavigator()
+        openEpub(uri)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        activeEpubUri?.let { outState.putString(STATE_EPUB_URI, it.toString()) }
+        super.onSaveInstanceState(outState)
     }
 
     override fun onPause() {
@@ -75,6 +89,11 @@ class ReaderActivity : AppCompatActivity() {
     override fun onDestroy() {
         readerDatabase.close()
         super.onDestroy()
+    }
+
+    private fun removeRestoredNavigator() {
+        val restoredNavigator = supportFragmentManager.findFragmentByTag(NAVIGATOR_TAG) ?: return
+        supportFragmentManager.beginTransaction().remove(restoredNavigator).commitNow()
     }
 
     private fun configureProgressSlider() {
@@ -98,7 +117,7 @@ class ReaderActivity : AppCompatActivity() {
 
     private fun openEpub(uri: Uri) {
         showControls(autoHide = false)
-        binding.readerStatus.text = "Adding EPUB to library…"
+        binding.readerStatus.text = "Opening EPUB…"
         lifecycleScope.launch {
             val result = runCatching {
                 withContext(Dispatchers.IO) {
@@ -182,13 +201,11 @@ class ReaderActivity : AppCompatActivity() {
             val isCentreTap = event.point.x in readerView.width * CENTRE_REGION_START..readerView.width * CENTRE_REGION_END &&
                 event.point.y in readerView.height * CENTRE_REGION_START..readerView.height * CENTRE_REGION_END
             if (!isCentreTap) return false
-
             runOnUiThread { toggleControls() }
             return true
         }
 
         override fun onDrag(event: DragEvent): Boolean = false
-
         override fun onKey(event: KeyEvent): Boolean = false
     }
 
@@ -284,6 +301,7 @@ class ReaderActivity : AppCompatActivity() {
 
     companion object {
         private const val EXTRA_EPUB_URI = "epub_uri"
+        private const val STATE_EPUB_URI = "state_epub_uri"
         private const val NAVIGATOR_TAG = "epub-navigator"
         private const val EPUB_LIBRARY_DIRECTORY = "ebooks"
         private const val CENTRE_REGION_START = 0.25f
