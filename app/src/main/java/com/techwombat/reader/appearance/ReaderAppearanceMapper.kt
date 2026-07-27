@@ -28,6 +28,7 @@ object ReaderAppearanceMapper {
             fontSize = normalized.fontScale.toDouble(),
             lineHeight = normalized.lineSpacing.toDouble(),
             pageMargins = 1.5,
+            publisherStyles = false,
             theme = if (normalized.theme == ReaderTheme.DARK) Theme.DARK else Theme.LIGHT,
         )
     }
