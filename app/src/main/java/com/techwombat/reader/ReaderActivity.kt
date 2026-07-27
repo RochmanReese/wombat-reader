@@ -16,6 +16,7 @@ import com.techwombat.reader.appearance.AppearanceDialog
 import com.techwombat.reader.appearance.ReaderAppearanceMapper
 import com.techwombat.reader.controls.ProgressionSlider
 import com.techwombat.reader.databinding.ActivityReaderBinding
+import com.techwombat.reader.library.EpubMetadata
 import com.techwombat.reader.storage.BookReadingState
 import com.techwombat.reader.storage.LibraryStorage
 import com.techwombat.reader.storage.LocatorPersistence
@@ -117,6 +118,7 @@ class ReaderActivity : AppCompatActivity() {
         navigator.addInputListener(controlsInputListener(navigator))
         supportFragmentManager.beginTransaction().replace(R.id.readerContainer, navigator, NAVIGATOR_TAG).commit()
         activeBookId = book.importedBook.bookId; activeNavigator = navigator; activePublication = book.publication
+        lifecycleScope.launch(Dispatchers.IO) { readerDatabase.bookReadingStateDao().updateMetadata(book.importedBook.bookId, EpubMetadata.title(book.publication) ?: book.importedBook.file.nameWithoutExtension, EpubMetadata.author(book.publication) ?: "Unknown author") }
         lifecycleScope.launch { navigator.currentLocator.debounce(750L).collect { locator -> updateProgressSlider(locator); persistLocation(book.importedBook.bookId, locator) } }
         if (book.importedBook.wasAdded) Toast.makeText(this, "Added to library", Toast.LENGTH_SHORT).show()
         binding.readerStatus.visibility = View.GONE; hideControls(true)
